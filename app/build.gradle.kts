@@ -1,5 +1,6 @@
 import java.util.Properties
 import java.io.FileInputStream
+import org.gradle.internal.os.OperatingSystem
 
 val keystorePropertiesFile = rootProject.file("keystore.properties")
 val useKeystoreProperties = keystorePropertiesFile.canRead()
@@ -86,4 +87,25 @@ android {
 dependencies {
     implementation("androidx.appcompat:appcompat:1.5.1")
     implementation("com.google.android.material:material:1.7.0")
+}
+
+task<Exec>("updateMetadata") {
+    dependencies {
+        implementation("androidx.appcompat:appcompat:1.5.1")
+        implementation("com.google.android.material:material:1.7.0")
+
+        implementation("com.android.tools.build:aapt2:7.3.1-8691043:linux")
+        implementation("com.android.tools.build:aapt2:7.3.1-8691043:windows")
+        implementation("com.android.tools.build:aapt2:7.3.1-8691043:osx")
+    }
+    isIgnoreExitValue = true
+
+    workingDir("../")
+
+    if (OperatingSystem.current().isWindows)
+        executable("./gradlew.bat")
+    else
+        executable("./gradlew")
+
+    args("--write-verification-metadata", "sha512", "build", "--no-daemon")
 }
